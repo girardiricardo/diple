@@ -276,6 +276,14 @@ final class AppModel: ObservableObject {
 
     func reportOpenFailure(_ message: String) { errorMessage = message }
 
+    var syncProblem: String? {
+        guard isOnline else {
+            guard let last = lastSync else { return "Offline" }
+            return "Offline · showing the queue from \(last.formatted(date: .omitted, time: .shortened))"
+        }
+        return errorMessage
+    }
+
     @discardableResult
     func report(_ error: Error, in operation: ErrorReport.Operation) -> String? {
         let r = ErrorReport(error, in: operation)
@@ -372,7 +380,7 @@ final class AppModel: ObservableObject {
     }
     private var pollTask: Task<Void, Never>?
     private let reachability = Reachability()
-    var isOnline = true
+    @Published var isOnline = true
     private(set) var failures = 0
     private var pendingFull = false
     private var notchOpen = false
